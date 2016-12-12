@@ -90,7 +90,7 @@ class BN_Conv_BN_ReLU_Conv_BN(nutszebra_chainer.Model):
 
 class PyramidalResNet(nutszebra_chainer.Model):
 
-    def __init__(self, category_num, N=(int(110 / 3),) * 3, initial_channel=16, alpha=270):
+    def __init__(self, category_num, N=(int(110 / 3 / 2),) * 3, initial_channel=16, alpha=270):
         super(PyramidalResNet, self).__init__()
         # conv
         modules = [('conv1', Conv_BN_ReLU(3, initial_channel, 3, 1, 1))]
