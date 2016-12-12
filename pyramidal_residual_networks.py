@@ -30,6 +30,7 @@ class Conv_BN_ReLU(nutszebra_chainer.Model):
 class BN_Conv_BN_ReLU_Conv_BN(nutszebra_chainer.Model):
 
     def __init__(self, in_channel, out_channel, filter_sizes=(3, 3), strides=(1, 1), pads=(1, 1)):
+        super(BN_Conv_BN_ReLU_Conv_BN, self).__init__()
         modules = []
         modules += [('bn1', L.BatchNormalization(in_channel))]
         modules += [('conv1', L.Convolution2D(in_channel, out_channel, filter_sizes[0], strides[0], pads[0]))]
@@ -79,6 +80,7 @@ class BN_Conv_BN_ReLU_Conv_BN(nutszebra_chainer.Model):
         h = h + self.concatenate_zero_pad(self.maybe_pooling(x), h.data.shape, h.volatile, type(h.data))
         return h
 
+    @staticmethod
     def _count_conv(conv):
         return functools.reduce(lambda a, b: a * b, conv.W.data.shape)
 
@@ -88,35 +90,36 @@ class BN_Conv_BN_ReLU_Conv_BN(nutszebra_chainer.Model):
 
 class PyramidalResNet(nutszebra_chainer.Model):
 
-    def __init__(self, category_num, N=(int(110) / 3,) * 3, initila_channel=16, alpha=270):
+    def __init__(self, category_num, N=(int(110 / 3),) * 3, initial_channel=16, alpha=270):
         super(PyramidalResNet, self).__init__()
         # conv
-        modules = [('conv1', Conv_BN_ReLU(3, initila_channel, 3, 1, 1))]
-        in_channel = 16
+        modules = [('conv1', Conv_BN_ReLU(3, initial_channel, 3, 1, 1))]
         # strides
         strides = [[(1, 1) for _ in six.moves.range(i)] for i in N]
         strides[1][0] = (1, 2)
         strides[2][0] = (1, 2)
         # channels
-        out_channels = PyramidalResNet.linear_schedule(initila_channel, initila_channel + alpha, N)
-        in_channel = initila_channel
+        out_channels = PyramidalResNet.linear_schedule(initial_channel, initial_channel + alpha, N)
+        in_channel = initial_channel
         for i in six.moves.range(len(strides)):
             for ii in six.moves.range(len(strides[i])):
-                out_channel = out_channels[i][ii]
-                stride = out_channels[i][ii]
+                out_channel = int(out_channels[i][ii])
+                stride = strides[i][ii]
                 name = 'res_block{}_{}'.format(i, ii)
                 modules.append((name, BN_Conv_BN_ReLU_Conv_BN(in_channel, out_channel, (3, 3), stride, (1, 1))))
                 # in_channel is changed
                 in_channel = out_channel
-        modules = [('linear', Conv_BN_ReLU(out_channel, category_num, 1, 1, 0))]
+        modules += [('linear', Conv_BN_ReLU(out_channel, category_num, 1, 1, 0))]
         # register layers
         [self.add_link(*link) for link in modules]
         self.modules = modules
+        self.strides = strides
+        self.out_channels = out_channels
         self.category_num = category_num
         self.N = N
-        self.initila_channel = initila_channel
+        self.initial_channel = initial_channel
         self.alpha = alpha
-        self.name = 'pyramidal_resnet_{}_{}_{}_{}'.format(category_num, N, initila_channel, alpha)
+        self.name = 'pyramidal_resnet_{}_{}_{}_{}'.format(category_num, N, initial_channel, alpha)
 
     @staticmethod
     def linear_schedule(bottom_layer, top_layer, N):
