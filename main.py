@@ -58,7 +58,7 @@ if __name__ == '__main__':
     N = args.pop('N')
     initial_channel = args.pop('initC')
     print('generating model')
-    model = pyramidal_residual_networks.PyramidalResNet(10, N=(int(N / 3.), ) * 3, initial_channel=initial_channel, alpha=alpha)
+    model = pyramidal_residual_networks.PyramidalResNet(10, N=(int(N / 3. / 2.), ) * 3, initial_channel=initial_channel, alpha=alpha)
     print('Done')
     optimizer = nutszebra_optimizer.OptimizerPyramidalResNet(model, lr=lr)
     args['model'] = model
