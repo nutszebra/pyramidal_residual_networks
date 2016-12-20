@@ -22,7 +22,7 @@ Test: Pictures are resized to 32x32, then they are normalized locally. Single im
 | network                                   | alpha  | depth  | total accuracy (%) |
 |:------------------------------------------|--------|--------|-------------------:|
 | Pyramidal Residual Networks [[1]][Paper]  | 270    | 110    | 96.23              |
-| my implementation                         | 270    | 110    | soon               |
+| my implementation                         | 270    | 110    | 95.9               |
 
 <img src="https://github.com/nutszebra/pyramidal_residual_networks/blob/master/loss.jpg" alt="loss" title="loss">
 <img src="https://github.com/nutszebra/pyramidal_residual_networks/blob/master/accuracy.jpg" alt="total accuracy" title="total accuracy">
